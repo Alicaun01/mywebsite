@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Taramalarım | Dijital İkiz Terminali</title>
+    
+    <!-- Google Model Viewer Kütüphanesi -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --panel-bg: rgba(17, 24, 39, 0.4);
+            --accent-color: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.3);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Space Grotesk', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            position: relative;
+            background-image: 
+                linear-gradient(var(--border-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, transparent 20%, rgba(11, 15, 25, 0.9) 80%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        header {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--text-main);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo .blink-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        nav {
+            display: flex;
+            gap: 25px;
+        }
+
+        nav a {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a.active, nav a:hover {
+            color: var(--accent-color);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        main {
+            flex: 1;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 20px 60px 20px;
+            display: grid;
+            grid-template-columns: 1fr 2.5fr;
+            gap: 40px;
+            align-items: stretch;
+        }
+
+        @media (max-width: 968px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Modül Paneli (Sol Menü) */
+        .module-box {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 35px 30px;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .module-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 15px; height: 15px;
+            border-top: 2px solid var(--accent-color);
+            border-left: 2px solid var(--accent-color);
+            border-top-left-radius: 8px;
+        }
+
+        .sys-tag {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .model-specs p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 5px;
+        }
+
+        .model-specs span {
+            color: var(--text-main);
+        }
+
+        .section-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-top: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before {
+            content: '>';
+            color: var(--accent-color);
+        }
+
+        .model-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-model {
+            font-family: 'JetBrains Mono', monospace;
+            padding: 12px 15px;
+            font-size: 0.8rem;
+            text-align: left;
+            background-color: transparent;
+            color: var(--text-main);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 4px;
+        }
+
+        .btn-model:hover, .btn-model.active {
+            border-color: var(--accent-color);
+            background-color: rgba(16, 185, 129, 0.05);
+            color: var(--accent-color);
+            box-shadow: inset 0 0 10px var(--accent-glow);
+        }
+
+        /* 3D Görselleştirme Alanı (HUD Viewport) */
+        .hud-viewport {
+            position: relative;
+            width: 100%;
+            min-height: 600px;
+            background: var(--card-bg);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            backdrop-filter: blur(12px);
+            padding: 2px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .hud-viewport::before, .hud-viewport::after,
+        .hud-bounds::before, .hud-bounds::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-color: var(--accent-color);
+            border-style: solid;
+            z-index: 5;
+        }
+
+        .hud-viewport::before { top: 10px; left: 10px; border-width: 2px 0 0 2px; }
+        .hud-viewport::after { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+        
+        .hud-bounds {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+        }
+        .hud-bounds::before { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; }
+        .hud-bounds::after { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+
+        model-viewer {
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            outline: none;
+            background-image: radial-gradient(circle at center, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+        }
+
+        .hud-overlay-text {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            z-index: 4;
+            line-height: 1.5;
+            text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+            pointer-events: none;
+        }
+
+        .interaction-hint {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+            background: rgba(11, 15, 25, 0.8);
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Yükleniyor Animasyonu */
+        .loading-poster {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--accent-color);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            gap: 15px;
+        }
+
+        .blink-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        footer {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            border-top: 1px solid rgba(16, 185, 129, 0.1);
+            background-color: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(5px);
+            margin-top: auto;
+        }
+
+        .status-bar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .status-online {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-color);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--accent-color);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">
+            <div class="blink-dot"></div>
+            CORE_SYSTEM
+        </a>
+        <nav>
+            <a href="index.html">[ KÖK DİZİN ]</a>
+            <a href="#" class="active">[ 3D TARAMALARIM ]</a>
+            <a href="#">[ ETKİNLİK AĞLARI ]</a>
+            <a href="#">[ SİSTEM KAYITLARI ]</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Sol Kolon: Model Bilgileri ve Seçici -->
+        <div class="module-box">
+            <div>
+                <div class="sys-tag">// GÖRSELLEŞTİRİCİ: AKTİF</div>
+                <h1 id="model-title">SPOR_ARABA_V1</h1>
+                
+                <div class="model-specs">
+                    <p>FORMAT: <span id="model-format">.GLB (Optimize Edilmiş)</span></p>
+                    <p>YÜZEY/MESH: <span>Yüksek Çözünürlük</span></p>
+                    <p>ETKİLEŞİM: <span>Kamera ve Dönüş Açık</span></p>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="section-title">TARAMA ARŞİVİ</h2>
+                <div class="model-list">
+                    <button class="btn-model active" onclick="changeModel('modeller/bugatti_car/bugatti.glb', 'SPOR_ARABA_V1', this)">
+                        > MODEL_01: OYUNCAK ARABA
+                    </button>
+                    <button class="btn-model" onclick="changeModel('modeller/gollum/gollum.glb', 'MEKANİK_PARÇA_Taraması', this)">
+                        > MODEL_02: GOLLUM HEYKELCİK
+                    </button>
+                    <button class="btn-model" onclick="changeModel('modeller/coffee/coffee.glb', 'MİMARİ_YAPI_Taraması', this)">
+                        > MODEL_03: KAHVE KUTUSU
+                    </button>
+                    <button class="btn-model" onclick="changeModel('modeller/murat/murat.glb', 'MİMARİ_YAPI_Taraması', this)">
+                        > MODEL_04: MURAT
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Kolon: 3D Model Görüntüleyici -->
+        <div class="hud-viewport">
+            <div class="hud-bounds"></div>
+            
+            <model-viewer 
+                id="main-3d-viewer"
+                src="modeller/bugatti_car/bugatti.glb" 
+                alt="3D Tarama Modeli" 
+                camera-controls 
+                auto-rotate 
+                rotation-per-second="30deg"
+                shadow-intensity="1"
+                exposure="1.2">
+                
+                <div slot="poster" class="loading-poster">
+                    <div class="blink-dot"></div>
+                    <span>3D_MESH_YÜKLENİYOR...</span>
+                </div>
+            </model-viewer>
+            
+            <div class="hud-overlay-text">
+                RENDER_ENGINE: WEBGL<br>
+                XYZ_AXIS: FREE_ROTATION
+            </div>
+
+            <div class="interaction-hint">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 15l7-7 7 7"/>
+                </svg>
+                Çevirmek İçin Sürükle
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="status-bar">
+            <div class="status-online">
+                <div class="status-dot"></div>
+                SİSTEM: AKTİF
+            </div>
+            <div>VERİ TABANI BAĞLANTISI: STABİL</div>
+            <div>© 2026 CORE_TERMINAL</div>
+        </div>
+    </footer>
+
+    <script>
+        function changeModel(modelPath, modelName, buttonElement) {
+            document.querySelectorAll('.btn-model').forEach(btn => btn.classList.remove('active'));
+            buttonElement.classList.add('active');
+            document.getElementById('model-title').innerText = modelName;
+            
+            const viewer = document.getElementById('main-3d-viewer');
+            viewer.src = modelPath;
+        }
+    </script>
+
+</body>
+</html>
