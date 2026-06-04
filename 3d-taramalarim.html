@@ -180,6 +180,28 @@
         .model-specs span {
             color: var(--text-main);
         }
+        /* Proje Linki Butonu CSS */
+        .btn-project-link {
+            font-family: 'JetBrains Mono', monospace;
+            display: block;
+            text-align: center;
+            padding: 12px 15px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            background-color: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            box-shadow: inset 0 0 0 0 var(--accent-glow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .btn-project-link:hover {
+            box-shadow: inset 0 0 15px var(--accent-glow), 0 0 15px var(--accent-glow);
+            color: #fff;
+        }
 
         .section-title {
             font-family: 'JetBrains Mono', monospace;
@@ -390,21 +412,27 @@
                     <p>YÜZEY/MESH: <span>Yüksek Çözünürlük</span></p>
                     <p>ETKİLEŞİM: <span>Kamera ve Dönüş Açık</span></p>
                 </div>
+
+                <div id="project-link-container" style="display: none;">
+                    <a id="project-link-btn" href="#" target="_blank" class="btn-project-link">
+                        > MURAT'IN WEB SAFASINI ZİYARET ET
+                    </a>
+                </div>
             </div>
 
             <div>
                 <h2 class="section-title">TARAMA ARŞİVİ</h2>
                 <div class="model-list">
-                    <button class="btn-model active" onclick="changeModel('modeller/bugatti_car/bugatti.glb', 'OYUNCAK_BUGATTİ', this)">
+                    <button class="btn-model active" onclick="changeModel('modeller/bugatti_car/bugatti.glb', 'OYUNCAK_BUGATTİ','', this)">
                         > MODEL_01: OYUNCAK ARABA
                     </button>
-                    <button class="btn-model" onclick="changeModel('modeller/gollum/gollum.glb', 'GOLLUM_HEYKELCİK', this)">
+                    <button class="btn-model" onclick="changeModel('modeller/gollum/gollum.glb', 'GOLLUM_HEYKELCİK','', this)">
                         > MODEL_02: GOLLUM HEYKELCİK
                     </button>
-                    <button class="btn-model" onclick="changeModel('modeller/coffee/coffee.glb', 'ICED_COFFE', this)">
+                    <button class="btn-model" onclick="changeModel('modeller/coffee/coffee.glb', 'ICED_COFFE', '' , this)">
                         > MODEL_03: KAHVE KUTUSU
                     </button>
-                    <button class="btn-model" onclick="changeModel('modeller/murat/murat.glb', 'MURAT', this)">
+                    <button class="btn-model" onclick="changeModel('modeller/murat/murat.glb', 'MURAT', 'https://yamanmurat761.github.io/sitem/', this)">
                         > MODEL_04: MURAT
                     </button>
                 </div>
@@ -457,13 +485,28 @@
     </footer>
 
     <script>
-        function changeModel(modelPath, modelName, buttonElement) {
+        // Üçüncü parametre olarak "projectUrl" eklendi
+        function changeModel(modelPath, modelName, projectUrl, buttonElement) {
+            // Buton aktiflik durumlarını güncelle
             document.querySelectorAll('.btn-model').forEach(btn => btn.classList.remove('active'));
             buttonElement.classList.add('active');
-            document.getElementById('model-title').innerText = modelName;
             
-            const viewer = document.getElementById('main-3d-viewer');
-            viewer.src = modelPath;
+            // Başlığı ve Modeli güncelle
+            document.getElementById('model-title').innerText = modelName;
+            document.getElementById('main-3d-viewer').src = modelPath;
+
+            // Link gösterme/gizleme mantığını çalıştır
+            const linkContainer = document.getElementById('project-link-container');
+            const linkBtn = document.getElementById('project-link-btn');
+
+            if (projectUrl && projectUrl !== '') {
+                // Eğer link tanımlanmışsa butonu göster ve linki ayarla
+                linkBtn.href = projectUrl;
+                linkContainer.style.display = 'block';
+            } else {
+                // Eğer link yoksa butonu tamamen gizle
+                linkContainer.style.display = 'none';
+            }
         }
     </script>
 
